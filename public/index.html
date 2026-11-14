@@ -58,7 +58,6 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); justify-content: center; align-items: flex-end; z-index: 100; }
         .modal.active { display: flex; }
         
-        /* Modal ichi endi har bir bo'limning o'z rasmi bilan ochiladi */
         .modal-content {
             background-size: cover;
             background-position: center;
@@ -140,7 +139,7 @@
             },
             youtube: {
                 title: "YouTube Konsultatsiya",
-                desc: "14-15 yillik tajriba: SEO, kontent strategiyasi, media menejment va audit.",
+                desc: "15 yillik tajriba: SEO, kontent strategiyasi, media menejment va audit.",
                 bg: "youtube.jpg",
                 items: [
                     { name: "1 SOATLIK STRATEGIK MASLAHAT", price: "$70" },
@@ -167,13 +166,11 @@
 
         function openModal(key) {
             const data = servicesData[key];
-            document.getElementById('modalTitleMeals' || 'modalTitle').innerText = data.title;
             document.getElementById('modalTitle').innerText = data.title;
             document.getElementById('modalDesc').innerText = data.desc;
             
-            // Modal oynasiga o'sha bo'limning fon rasmini berish
             const modalBox = document.getElementById('modalContentBox');
-            modalBox.style.backgroundImage = `url('${data.bg}')`;
+            modalBox.style.backgroundImage = `url('${val?.bg || data.bg}')`;
 
             const itemsContainer = document.getElementById('modalItems');
             itemsContainer.innerHTML = '';
