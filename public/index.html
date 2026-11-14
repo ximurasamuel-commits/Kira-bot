@@ -1,81 +1,70 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kira Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+import { Telegraf, Markup } from 'telegraf';
+import express from 'express';
+import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+
+// ESM muhiti uchun __dirname ni aniqlash
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) throw new Error('TELEGRAM_BOT_TOKEN topilmadi!');
+
+const bot = new Telegraf(token);
+const app = express();
+const PORT = process.env.PORT || 3000;
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '';
+const WEB_APP_URL = process.env.WEB_APP_URL || 'https://dark-hornets-tan.loca.lt';
+
+// Veb papkani ulash
+app.use(express.static(path.join(__dirname, '../public')));
+
+app.listen(PORT, () => {
+    console.log(`[Express] Mini App server ishga tushdi: http://localhost:${PORT}`);
+});
+
+// /start komandasi - Donatbek uslubidagi Mini App tugmasi bilan
+bot.start(async (ctx) => {
+    const userName = ctx.from?.first_name || 'Foydalanuvchi';
+
+    await ctx.reply(
+        `🖤 *SAMUEL GROUP // PORTAL*\n` +
+        `──────────────────────────\n` +
+        `Xush kelibsiz, ${userName}! Men Kira 💋\n` +
+        `Pastdagi "Open Market" tugmasi orqali do'konga kiring:`,
+        {
+            parse_mode: 'Markdown',
+            ...Markup.keyboard([
+                [Markup.button.webApp('🛍 Open Market', WEB_APP_URL)]
+            ]).resize()
         }
-        body {
-            background-color: #0f1015;
-            color: #ffffff;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        h1 {
-            font-size: 22px;
-            margin-bottom: 8px;
-            color: #ff3344;
-        }
-        .subtitle {
-            font-size: 14px;
-            color: #8b8e9b;
-            margin-bottom: 20px;
-        }
-        .categories {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .category-card {
-            background: #1a1b24;
-            border: 1px solid #2a2c3d;
-            border-radius: 12px;
-            padding: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .category-card:active {
-            transform: scale(0.98);
-            border-color: #ff3344;
-        }
-        .category-card h3 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-        .category-card p {
-            font-size: 13px;
-            color: #8b8e9b;
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: flex-end;
-            z-index: 100;
-        }
-        .modal.active {
-            display: flex;
-        }
-        .modal-content {
-            background: #161722;
-            width: 100%;
-            max-height: 85vh;
-            border-top-left-radius: 20px;
-            border
+    );
+});
+
+// Chek qabul qilish va adminga yuborish
+bot.on('photo', async (ctx) => {
+    const user = ctx.from;
+    if (!user) return;
+
+    await ctx.reply(`✅ *Chekingiz qabul qilindi!*\nOperator tez orada tekshiradi.`, { parse_mode: 'Markdown' });
+
+    if (ADMIN_CHAT_ID) {
+        const photoArray = ctx.message.photo;
+        const fileId = photoArray[photoArray.length - 1].file_id;
+
+        await bot.telegram.sendPhoto(ADMIN_CHAT_ID, fileId, {
+            caption: `📥 *YANGI TO'LOV CHEKI*\n👤 Mijoz: ${user.first_name}\n🆔 ID: \`${user.id}\``,
+            parse_mode: 'Markdown'
+        });
+    }
+});
+
+bot.launch().then(() => {
+    console.log('🚀 Kira bot Mini App rejimida muvaffaqiyatli ishga tushdi!');
+});
+
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
