@@ -22,32 +22,26 @@ app.get('/', (req, res) => {
 
 bot.start(async (ctx) => {
     const u = ctx.from?.first_name || 'Foydalanuvchi';
-    
-    // Telefonda menyu tugmasi sifatida 100% ishlashi uchun
-    try {
-        await ctx.telegram.setChatMenuButton({
-            chat_id: ctx.chat.id,
-            menu_button: {
-                type: 'web_app',
-                text: '🚀 Open Market',
-                web_app: { url: WEB_APP_URL }
-            }
-        });
-    } catch (e) {
-        console.log('Menu button set error:', e);
-    }
-
-    await ctx.reply(`*SAMUEL GROUP // PORTAL*\n\nSalom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n🚀 *Qanday foydalanish kerak?*\n1. Pastdagi yoki xabardagi *'🚀 Open Market'* tugmasini bosing.\n2. Xizmatlar bilan tanishing.\n3. To'lov chekini yuboring!`, {
-        parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard([
-            [Markup.button.webApp('🚀 Open Market 🔴', WEB_APP_URL)]
-        ])
-    });
+    await ctx.reply(
+        `*SAMUEL GROUP // PORTAL*\n\n` +
+        `Salom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n` +
+        `🚀 *Qanday foydalanish kerak?*\n` +
+        `1. Pastdagi *'🚀 Open Market'* tugmasini bosing.\n` +
+        `2. Xizmatlar bilan tanishing.\n` +
+        `3. To'lov chekini rasm ko'rinishida yuboring!`,
+        {
+            parse_mode: 'Markdown',
+            ...Markup.keyboard([
+                [Markup.button.webApp('🚀 Open Market', WEB_APP_URL)]
+            ]).resize()
+        }
+    );
 });
 
 bot.on('photo', async (ctx) => {
-    const u = ctx.from; if (!u) return;
-    await ctx.reply('*Chekingiz qabul qilindi!* \nOperator tekshiradi.', { parse_mode: 'Markdown' });
+    const u = ctx.from;
+    if (!u) return;
+    await ctx.reply('*Chekingiz qabul qilindi!* \nOperator tez orada tekshiradi.', { parse_mode: 'Markdown' });
     if (ADMIN_CHAT_ID) {
         const f = ctx.message.photo[ctx.message.photo.length - 1].file_id;
         await bot.telegram.sendPhoto(ADMIN_CHAT_ID, f, {
