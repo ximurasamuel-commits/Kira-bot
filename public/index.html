@@ -29,7 +29,6 @@
         .subtitle { font-size: 13px; color: var(--text-muted); font-weight: 500; }
         .categories { display: flex; flex-direction: column; gap: 14px; flex-grow: 1; }
         
-        /* Har bir bo'lim uchun alohida fon va xiralashtirish */
         .category-card {
             position: relative;
             background-size: cover;
@@ -52,27 +51,46 @@
         .category-card:active { transform: scale(0.97); border-color: var(--accent-red); }
         .category-card:active::before { background: rgba(10, 11, 16, 0.7); }
         
-        .card-content {
-            position: relative;
-            z-index: 2;
-        }
+        .card-content { position: relative; z-index: 2; }
         .category-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
         .category-card p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); justify-content: center; align-items: flex-end; z-index: 100; }
         .modal.active { display: flex; }
-        .modal-content { background: #11131c; width: 100%; max-height: 85vh; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 24px; overflow-y: auto; border-top: 1px solid #2a2e45; }
+        
+        /* Modal ichi endi har bir bo'limning o'z rasmi bilan ochiladi */
+        .modal-content {
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            max-height: 85vh;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(13, 15, 22, 0.92);
+            z-index: 1;
+        }
+        .modal-content > * { position: relative; z-index: 2; }
+
         .back-btn { background: #1c1f30; border: 1px solid #2d324f; color: var(--text-main); cursor: pointer; font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px; margin-bottom: 18px; }
         .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
         .modal-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
-        .service-item { display: flex; justify-content: space-between; align-items: center; background: #181a26; padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #24283b; }
+        .service-item { display: flex; justify-content: space-between; align-items: center; background: rgba(24, 26, 38, 0.85); padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.08); }
         .service-name { font-size: 13px; font-weight: 600; max-width: 65%; }
         .service-price { font-size: 14px; font-weight: 800; color: var(--accent-gold); }
-        .card-payment { background: #181a26; border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 16px; margin-top: 20px; text-align: center; }
+        .card-payment { background: rgba(24, 26, 38, 0.85); border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 16px; margin-top: 20px; text-align: center; }
         .card-payment span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; }
         .card-payment strong { font-size: 17px; color: var(--accent-gold); letter-spacing: 1.5px; font-family: monospace; }
         .copy-btn { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-top: 12px; cursor: pointer; }
-        .footer-brand { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 20px; }
+        .footer-brand { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
@@ -84,7 +102,7 @@
     <div class="categories" id="categoriesContainer"></div>
 
     <div class="modal" id="serviceModal">
-        <div class="modal-content">
+        <div class="modal-content" id="modalContentBox">
             <button class="back-btn" onclick="closeModal()">← Ortga</button>
             <div class="modal-title" id="modalTitle"></div>
             <div class="modal-desc" id="modalDesc"></div>
@@ -149,8 +167,14 @@
 
         function openModal(key) {
             const data = servicesData[key];
+            document.getElementById('modalTitleMeals' || 'modalTitle').innerText = data.title;
             document.getElementById('modalTitle').innerText = data.title;
             document.getElementById('modalDesc').innerText = data.desc;
+            
+            // Modal oynasiga o'sha bo'limning fon rasmini berish
+            const modalBox = document.getElementById('modalContentBox');
+            modalBox.style.backgroundImage = `url('${data.bg}')`;
+
             const itemsContainer = document.getElementById('modalItems');
             itemsContainer.innerHTML = '';
             data.items.forEach(item => {

@@ -22,9 +22,26 @@ app.get('/', (req, res) => {
 
 bot.start(async (ctx) => {
     const u = ctx.from?.first_name || 'Foydalanuvchi';
-    await ctx.reply(`*SAMUEL GROUP // PORTAL*\n\nSalom, ${u}! Men Kira❤️ — sizning shaxsiy yordamchingiz.\n\n🚀 *Qanday foydalanish kerak?*\n1. Pastdagi *'🚀 Open Market'* tugmasini bosing.\n2. Xizmatlar bilan tanishing.\n3. To'lov chekini yuboring!`, {
+    
+    // Telefonda menyu tugmasi sifatida 100% ishlashi uchun
+    try {
+        await ctx.telegram.setChatMenuButton({
+            chat_id: ctx.chat.id,
+            menu_button: {
+                type: 'web_app',
+                text: '🚀 Open Market',
+                web_app: { url: WEB_APP_URL }
+            }
+        });
+    } catch (e) {
+        console.log('Menu button set error:', e);
+    }
+
+    await ctx.reply(`*SAMUEL GROUP // PORTAL*\n\nSalom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n🚀 *Qanday foydalanish kerak?*\n1. Pastdagi yoki xabardagi *'🚀 Open Market'* tugmasini bosing.\n2. Xizmatlar bilan tanishing.\n3. To'lov chekini yuboring!`, {
         parse_mode: 'Markdown',
-        ...Markup.keyboard([[Markup.button.webApp('🚀 Open Market', WEB_APP_URL)]]).resize()
+        ...Markup.inlineKeyboard([
+            [Markup.button.webApp('🚀 Open Market 🔴', WEB_APP_URL)]
+        ])
     });
 });
 
