@@ -44,13 +44,4 @@ h1{font-size:24px;font-weight:800;color:var(--red);margin-bottom:6px}
 </style>
 </head>
 <body>
-<header>
-<h1>SAMUEL GROUP // PORTAL</h1>
-<div class="subtitle">Eksklyuziv xizmatlar va mahsulotlar katalogi</div>
-</header>
-<div class="categories" id="categoriesContainer"></div>
-<div class="modal" id="serviceModal">
-<div class="modal-content">
-<button class="back-btn" onclick="closeModal()">← Ortga</button>
-<div class="modal-title" id="modalTitle"></div>
-<div class="modal-desc" id="modal
+<header><h1>SAMUEL GROUP
