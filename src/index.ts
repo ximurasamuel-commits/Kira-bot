@@ -10,8 +10,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
-if (!token) throw new Error('TELEGRAM_BOT_TOKEN topilmadi!');
+const token = process.env.TELEGRAM_BOT_TOKEN;8460703214:AAEaP8AWvAKTNcBodKIrkAkABfIWY_1LAs0
 
 const bot = new Telegraf(token);
 const app = express();
