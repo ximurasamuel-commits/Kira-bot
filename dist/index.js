@@ -1,0 +1,55 @@
+import { Telegraf, Markup } from 'telegraf';
+import express from 'express';
+import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+dotenv.config();
+// ESM muhiti uchun __dirname ni aniqlash
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token)
+    throw new Error('TELEGRAM_BOT_TOKEN topilmadi!');
+const bot = new Telegraf(token);
+const app = express();
+const PORT = process.env.PORT || 3000;
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '';
+const WEB_APP_URL = process.env.WEB_APP_URL || 'https://dark-hornets-tan.loca.lt';
+// Veb papkani ulash
+app.use(express.static(path.join(__dirname, '../public')));
+app.listen(PORT, () => {
+    console.log(`[Express] Mini App server ishga tushdi: http://localhost:${PORT}`);
+});
+// /start komandasi - Donatbek uslubidagi Mini App tugmasi bilan
+bot.start(async (ctx) => {
+    const userName = ctx.from?.first_name || 'Foydalanuvchi';
+    await ctx.reply(`🖤 *SAMUEL GROUP // PORTAL*\n` +
+        `──────────────────────────\n` +
+        `Xush kelibsiz, ${userName}! Men Kira 💋\n` +
+        `Pastdagi "Open Market" tugmasi orqali do'konga kiring:`, {
+        parse_mode: 'Markdown',
+        ...Markup.keyboard([
+            [Markup.button.webApp('🛍 Open Market', WEB_APP_URL)]
+        ]).resize()
+    });
+});
+// Chek qabul qilish va adminga yuborish
+bot.on('photo', async (ctx) => {
+    const user = ctx.from;
+    if (!user)
+        return;
+    await ctx.reply(`✅ *Chekingiz qabul qilindi!*\nOperator tez orada tekshiradi.`, { parse_mode: 'Markdown' });
+    if (ADMIN_CHAT_ID) {
+        const photoArray = ctx.message.photo;
+        const fileId = photoArray[photoArray.length - 1].file_id;
+        await bot.telegram.sendPhoto(ADMIN_CHAT_ID, fileId, {
+            caption: `📥 *YANGI TO'LOV CHEKI*\n👤 Mijoz: ${user.first_name}\n🆔 ID: \`${user.id}\``,
+            parse_mode: 'Markdown'
+        });
+    }
+});
+bot.launch().then(() => {
+    console.log('🚀 Kira bot Mini App rejimida muvaffaqiyatli ishga tushdi!');
+});
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
