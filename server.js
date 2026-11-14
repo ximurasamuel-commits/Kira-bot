@@ -1,12 +1,6 @@
 import { Telegraf, Markup } from 'telegraf';
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Siz bergan aniq ma'lumotlar
 const TOKEN = '8460703214:AAEaP8AWvAKTNcBodKIrkAkABfIWY_1LAs0';
 const ADMIN_CHAT_ID = '5709916413';
 const WEB_APP_URL = 'https://kira-bot-jgtj.onrender.com';
@@ -15,59 +9,32 @@ const bot = new Telegraf(TOKEN);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Statik fayllarni ulash
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start komandasi va aniq yo'riqnoma
-bot.start(async (ctx) => {
-    const userName = ctx.from?.first_name || 'Foydalanuvchi';
-    await ctx.reply(
-        `*SAMUEL GROUP // PORTAL*\n\n` +
-        `Salom, ${userName}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n` +
-        `🚀 *Qanday foydalanish kerak?*\n` +
-        `1. Pastdagi klaviaturada chiqadigan *'🚀 Open Market'* tugmasini bosing.\n` +
-        `2. Ochilgan oyna orqali barcha eksklyuziv xizmatlar, dasturlar va YouTube konsultatsiyalari bilan tanishing.\n` +
-        `3. Tanlagan xizmatingiz uchun to'lovni amalga oshirib, chekni shu botga rasm ko'rinishida yuboring!`,
-        {
-            parse_mode: 'Markdown',
-            ...Markup.keyboard([
-                [Markup.button.webApp('🚀 Open Market', WEB_APP_URL)]
-            ]).resize()
+// To'g'ridan-to'g'ri brauzerda ochiladigan lyuks sahifa
+const htmlContent = `<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samuel Group // Portal</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #08090d;
+            --card-bg: #13151f;
+            --card-border: #232638;
+            --accent-red: #ff3344;
+            --accent-gold: #ffcc00;
+            --text-main: #ffffff;
+            --text-muted: #8b8e9b;
         }
-    );
-});
-
-// To'lov cheklarini qabul qilish va adminga yuborish
-bot.on('photo', async (ctx) => {
-    const user = ctx.from;
-    if (!user) return;
-    
-    await ctx.reply('*Chekingiz qabul qilindi!* \nOperator tez orada tekshiradi.', { parse_mode: 'Markdown' });
-    
-    if (ADMIN_CHAT_ID) {
-        const photoArray = ctx.message.photo;
-        const fileId = photoArray[photoArray.length - 1].file_id;
-        await bot.telegram.sendPhoto(ADMIN_CHAT_ID, fileId, {
-            caption: `🔴 *YANGI TO'LOV CHEKI*\n\n` +
-                     `👤 Mijoz: [${user.first_name}](tg://user?id=${user.id})\n` +
-                     `🆔 ID: \`${user.id}\``,
-            parse_mode: 'Markdown'
-        });
-    }
-});
-
-// 502 xatosi chiqmasligi uchun '0.0.0.0' bilan ulanish
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Express] 🚀 Mini App server ishga tushdi: http://localhost:${PORT}`);
-});
-
-bot.launch().then(() => {
-    console.log('Kira bot Mini App rejimida muvaffaqiyatli ishga tushdi!');
-});
-
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; flex-direction: column; min-height: 100vh; }
+        header { margin-bottom: 24px; }
+        h1 { font-size: 24px; font-weight: 800; color: var(--accent-red); margin-bottom: 6px; }
+        .subtitle { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        .categories { display: flex; flex-direction: column; gap: 14px; }
+        .category-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.25s ease; }
+        .category-card:active { transform: scale(0.97); border-color: var(--accent-red); }
+        .category-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .category-card p { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background
