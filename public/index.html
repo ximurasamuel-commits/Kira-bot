@@ -1,593 +1,81 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#0d0e12">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Samuel Group // Portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0d0e12;
-      --bg-elevated: #14151a;
-      --bg-card: rgba(20, 21, 26, 0.85);
-      --border: rgba(255, 255, 255, 0.06);
-      --border-glow: rgba(124, 92, 255, 0.3);
-      --text: #f4f4f5;
-      --text-muted: #71717a;
-      --accent: #7c5cff;
-      --accent-dim: rgba(124, 92, 255, 0.15);
-      --accent-glow: rgba(124, 92, 255, 0.5);
-      --gold: #ffd700;
-      --gold-dim: rgba(255, 215, 0, 0.15);
-      --success: #22c55e;
-      --danger: #ef4444;
-      --radius: 16px;
-      --radius-sm: 10px;
-      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      --shadow-glow: 0 0 40px rgba(124, 92, 255, 0.2);
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    }
-
-    html, body { height: 100%; overflow: hidden; position: fixed; width: 100%; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      font-size: 15px;
-    }
-
-    /* Animated background */
-    .bg-layer {
-      position: fixed; inset: 0; z-index: -1; pointer-events: none;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 92, 255, 0.12) 0%, transparent 60%),
-                  radial-gradient(ellipse 60% 50% at 100% 100%, rgba(255, 215, 0, 0.06) 0%, transparent 50%),
-                  var(--bg);
-    }
-    .bg-grid {
-      position: fixed; inset: 0; z-index: -1; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(124, 92, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 92, 255, 0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      animation: gridDrift 20s linear infinite;
-    }
-    @keyframes gridDrift { 0% { transform: translate(0, 0); } 100% { transform: translate(60px, 60px); } }
-
-    .app { display: flex; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
-
-    /* Header */
-    .header {
-      padding: env(safe-area-inset-top, 12px) 16px 8px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(20, 21, 26, 0.95) 0%, transparent 100%);
-      backdrop-filter: blur(20px);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .header-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .header-balance { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 100px; font-weight: 600; font-size: 13px; color: var(--gold); backdrop-filter: blur(10px); }
-
-    /* Tab content area */
-    .tab-content { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: calc(90px + env(safe-area-inset-bottom, 12px)); display: none; }
-    .tab-content.active { display: block; animation: fadeSlide 0.35s var(--transition); }
-    @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Services Grid */
-    .section-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; margin-bottom: 16px; letter-spacing: -0.02em; }
-    .services-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .service-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 16px; cursor: pointer; transition: var(--transition);
-      position: relative; overflow: hidden;
-      backdrop-filter: blur(10px);
-    }
-    .service-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 50%);
-      opacity: 0; transition: var(--transition);
-    }
-    .service-card:hover, .service-card:active { transform: translateY(-2px); border-color: var(--border-glow); box-shadow: var(--shadow), var(--shadow-glow); }
-    .service-card:hover::before, .service-card:active::before { opacity: 1; }
-    .service-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 10px; background: var(--accent-dim); color: var(--accent); }
-    .service-title { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .service-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 100; display: none; align-items: flex-end;
-      background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
-      animation: fadeIn 0.2s var(--transition);
-    }
-    .modal-overlay.active { display: flex; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal {
-      width: 100%; max-height: 85vh; background: var(--bg-elevated);
-      border-radius: 20px 20px 0 0; border: 1px solid var(--border); border-bottom: none;
-      overflow: hidden; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      display: flex; flex-direction: column;
-    }
-    .modal-overlay.active .modal { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 5px; background: var(--border); border-radius: 3px; margin: 12px auto 8px; }
-    .modal-header { padding: 0 20px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; }
-    .modal-close { width: 36px; height: 36px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
-    .modal-close:hover { background: var(--accent-dim); border-color: var(--accent); }
-    .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
-    .modal-section { margin-bottom: 20px; }
-    .modal-section-title { font-weight: 600; font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-    .modal-desc { font-size: 14px; line-height: 1.6; color: var(--text); }
-    .pricing-list { display: flex; flex-direction: column; gap: 8px; }
-    .price-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); transition: var(--transition); }
-    .price-item:hover { border-color: var(--border-glow); }
-    .price-name { font-weight: 500; }
-    .price-value { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--gold); }
-    .payment-card {
-      background: linear-gradient(135deg, rgba(124, 92, 255, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
-      border: 1px solid var(--border-glow); border-radius: var(--radius); padding: 16px;
-    }
-    .payment-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-    .payment-number { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; color: var(--gold); margin-bottom: 4px; word-break: break-all; }
-    .payment-name { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
-    .payment-instruction { font-size: 13px; color: var(--text); line-height: 1.5; }
-    .btn-primary {
-      width: 100%; padding: 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px;
-      background: linear-gradient(135deg, var(--accent) 0%, #9b7dff 100%);
-      color: #0d0e12; border: none; cursor: pointer; transition: var(--transition);
-      box-shadow: 0 4px 20px rgba(124, 92, 255, 0.3);
-    }
-    .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(124, 92, 255, 0.4); }
-
-    /* History */
-    .history-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-    .history-empty svg { width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.4; }
-    .order-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; transition: var(--transition); }
-    .order-item:hover { border-color: var(--border-glow); }
-    .order-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .order-info { flex: 1; min-width: 0; }
-    .order-title { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .order-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; margin-top: 4px; }
-    .order-status { padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-    .status-pending { background: var(--gold-dim); color: var(--gold); }
-    .status-completed { background: rgba(34, 197, 94, 0.15); color: var(--success); }
-    .status-cancelled { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-
-    /* Profile */
-    .profile-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
-    .profile-avatar { width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, var(--accent) 0%, #9b7dff 100%); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: var(--bg); margin: 0 auto 16px; }
-    .profile-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; text-align: center; margin-bottom: 4px; }
-    .profile-username { color: var(--text-muted); text-align: center; font-size: 14px; margin-bottom: 4px; }
-    .profile-id { text-align: center; font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 20px; }
-    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .stat { text-align: center; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); }
-    .stat-value { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: var(--gold); }
-    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
-    .profile-actions { display: flex; flex-direction: column; gap: 10px; }
-    .btn-secondary { padding: 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); cursor: pointer; transition: var(--transition); }
-    .btn-secondary:hover { border-color: var(--accent); background: var(--accent-dim); }
-    .btn-danger { padding: 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 15px; background: transparent; border: 1px solid var(--danger); color: var(--danger); cursor: pointer; transition: var(--transition); }
-    .btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
-
-    /* Bottom Navigation */
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(13, 14, 18, 0.95); backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border);
-      padding: 8px env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 16px);
-      display: flex; justify-content: space-around; gap: 4px;
-    }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; cursor: pointer; border-radius: 12px; transition: var(--transition); color: var(--text-muted); }
-    .nav-item.active { color: var(--accent); }
-    .nav-item:hover, .nav-item:active { background: var(--accent-dim); }
-    .nav-icon { width: 24px; height: 24px; stroke-width: 2.5; }
-    .nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .bg-grid { animation: none; }
-      .modal { transition: none; }
-    }
-
-    /* Safe area for iOS */
-    @supports (padding: max(0px)) {
-      .header { padding-top: max(12px, env(safe-area-inset-top)); }
-      .bottom-nav { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-      .tab-content { padding-bottom: max(90px, calc(90px + env(safe-area-inset-bottom))); }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-layer"></div>
-  <div class="bg-grid"></div>
-
-  <div class="app">
-    <header class="header">
-      <span class="header-title">SAMUEL GROUP</span>
-      <div class="header-balance">0 <span style="font-size:11px">so'm</span></div>
-    </header>
-
-    <!-- MAGAZIN TAB -->
-    <main class="tab-content active" id="tab-shop" role="tabpanel" aria-label="Magazin">
-      <h1 class="section-title">Xizmatlar</h1>
-      <div class="services-grid" id="servicesGrid"></div>
-    </main>
-
-    <!-- ISTORIYA TAB -->
-    <main class="tab-content" id="tab-history" role="tabpanel" aria-label="Istoriya">
-      <h1 class="section-title">Buyurtmalar tarixi</h1>
-      <div id="historyList">
-        <div class="history-empty">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <p>Buyurtmalar tarixi bo'sh</p>
-          <p style="font-size:13px; margin-top:8px;">Birinchi xizmatingizni buyurtma qiling</p>
-        </div>
-      </div>
-    </main>
-
-    <!-- PROFIL TAB -->
-    <main class="tab-content" id="tab-profile" role="tabpanel" aria-label="Profil">
-      <h1 class="section-title">Profil</h1>
-      <div class="profile-card">
-        <div class="profile-avatar" id="profileAvatar">?</div>
-        <div class="profile-name" id="profileName">Yuklanmoqda...</div>
-        <div class="profile-username" id="profileUsername">@username</div>
-        <div class="profile-id" id="profileId">ID: 000000000</div>
-        <div class="profile-stats">
-          <div class="stat"><div class="stat-value" id="statOrders">0</div><div class="stat-label">Buyurtmalar</div></div>
-          <div class="stat"><div class="stat-value" id="statSpent">0</div><div class="stat-label">Sarflangan</div></div>
-          <div class="stat"><div class="stat-value" id="statBalance">0</div><div class="stat-label">Balans</div></div>
-        </div>
-      </div>
-      <div class="profile-actions">
-        <button class="btn-secondary" onclick="openSupport()">💬 Qo'llab-quvvatlash</button>
-        <button class="btn-secondary" onclick="openSettings()">⚙️ Sozlamalar</button>
-        <button class="btn-danger" onclick="logout()">🚪 Chiqish</button>
-      </div>
-    </main>
-
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav" role="tablist" aria-label="Asosiy navigatsiya">
-      <button class="nav-item active" role="tab" data-tab="shop" aria-selected="true" aria-controls="tab-shop">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 22h8M12 14v-8M12 22V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2"/></svg>
-        <span class="nav-label">Magazin</span>
-      </button>
-      <button class="nav-item" role="tab" data-tab="history" aria-selected="false" aria-controls="tab-history">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-        <span class="nav-label">Istoriya</span>
-      </button>
-      <button class="nav-item" role="tab" data-tab="profile" aria-selected="false" aria-controls="tab-profile">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
-        <span class="nav-label">Profil</span>
-      </button>
-    </nav>
-
-    <!-- MODAL -->
-    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal">
-        <div class="modal-handle"></div>
-        <header class="modal-header">
-          <h2 class="modal-title" id="modalTitle">Xizmat</h2>
-          <button class="modal-close" id="modalClose" aria-label="Yopish">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </header>
-        <div class="modal-body">
-          <div class="modal-section">
-            <div class="modal-section-title">Tavsif</div>
-            <p class="modal-desc" id="modalDesc"></p>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section-title">Narxlar</div>
-            <div class="pricing-list" id="modalPricing"></div>
-          </div>
-          <div class="modal-section">
-            <div class="payment-card">
-              <div class="payment-label">To'lov uchun karta (Humo)</div>
-              <div class="payment-number" id="paymentNumber">9860 3501 4998 9922</div>
-              <div class="payment-name" id="paymentName">Kodirjon Khusanov</div>
-              <p class="payment-instruction">To'lovni amalga oshirgach, chek rasmini botga yuboring. Operator tez orada tekshirib, xizmatni faollashtiradi.</p>
-            </div>
-          </div>
-        </div>
-        <div style="padding: 16px 20px 20px; border-top: 1px solid var(--border);">
-          <button class="btn-primary" id="btnCopyCard">📋 Karta raqamini nusxalash</button>
-        </div>
-      </div>
-    </div>
-
-  <script>
-    // ===== SERVICES DATA =====
-    const services = [
-      {
-        id: 'opt',
-        icon: '💻',
-        title: 'Tizim Optimizatsiyalari',
-        desc: 'Standard, Pro, VIP Ultra paketlari. Windows, BIOS, RAM, Registry chuqur optimizatsiyasi. Maksimal FPS, nol input lag.',
-        pricing: [
-          { name: 'Standard', price: '300 000 so\'m' },
-          { name: 'Pro', price: '400 000 so\'m' },
-          { name: 'VIP Ultra', price: '450 000 so\'m' }
-        ]
-      },
-      {
-        id: 'dev',
-        icon: '🛠',
-        title: 'Dasturiy Ta\'minot',
-        desc: 'C++, Qt, Electron, Python va custom skriptlar. Desktop/Web ilovalar, avtomatlashtirish tizimlari, botlar noldan yaratiladi.',
-        pricing: [
-          { name: 'Custom Script', price: 'Kelishuvasovida' },
-          { name: 'Desktop App', price: 'Kelishuvasovida' },
-          { name: 'Bot/Automation', price: 'Kelishuvasovida' }
-        ]
-      },
-      {
-        id: 'games',
-        icon: '🎮',
-        title: 'Samuel Games Studios',
-        desc: 'Eksklyuziv 3D horror va indie o\'yinlar. Atmosferali, immersiv tajriba. Har bir loyiha — maxsus dunyo va storyline.',
-        pricing: [
-          { name: 'Horror Title 1', price: 'Katalogda' },
-          { name: 'Horror Title 2', price: 'Katalogda' },
-          { name: 'Upcoming', price: 'Kutilmoqda' }
-        ]
-      },
-      {
-        id: 'consult',
-        icon: '📊',
-        title: 'YouTube Konsultatsiya',
-        desc: '14-15 yillik tajriba: SEO, kontent strategiyasi, media menejment, kanal o\'sishi. Shaxsiy maslahat va audit.',
-        pricing: [
-          { name: '1 soatlik sessiya', price: 'Kelishuvasovida' },
-          { name: 'To\'liq audit', price: 'Kelishuvasovida' },
-          { name: 'Oylik сопровождение', price: 'Kelishuvasovida' }
-        ]
-      }
-    ];
-
-    // ===== STATE =====
-    let currentTab = 'shop';
-    const tg = window.Telegram?.WebApp;
-    let userData = tg?.initDataUnsafe?.user || null;
-
-    // ===== DOM ELEMENTS =====
-    const tabs = {
-      shop: document.getElementById('tab-shop'),
-      history: document.getElementById('tab-history'),
-      profile: document.getElementById('tab-profile')
-    };
-    const navItems = document.querySelectorAll('.nav-item');
-    const servicesGrid = document.getElementById('servicesGrid');
-    const historyList = document.getElementById('historyList');
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalPricing = document.getElementById('modalPricing');
-    const modalClose = document.getElementById('modalClose');
-    const btnCopyCard = document.getElementById('btnCopyCard');
-
-    // ===== INIT =====
-    function init() {
-      setupTabs();
-      renderServices();
-      renderProfile();
-      setupModal();
-      setupWebApp();
-      tg?.ready();
-    }
-
-    // ===== TABS =====
-    function setupTabs() {
-      navItems.forEach(item => {
-        item.addEventListener('click', () => switchTab(item.dataset.tab));
-        item.addEventListener('touchstart', () => {}, { passive: true });
-      });
-    }
-
-    function switchTab(tab) {
-      if (tab === currentTab) return;
-      currentTab = tab;
-
-      Object.values(tabs).forEach(t => t.classList.remove('active'));
-      tabs[tab]?.classList.add('active');
-
-      navItems.forEach(item => {
-        const active = item.dataset.tab === tab;
-        item.classList.toggle('active', active);
-        item.setAttribute('aria-selected', active);
-      });
-
-      if (tab === 'history') renderHistory();
-      if (tab === 'profile') renderProfile();
-    }
-
-    // ===== SERVICES =====
-    function renderServices() {
-      servicesGrid.innerHTML = services.map(s => `
-        <article class="service-card" data-service="${s.id}" tabindex="0" role="button" aria-label="${s.title}">
-          <div class="service-icon">${s.icon}</div>
-          <h3 class="service-title">${s.title}</h3>
-          <p class="service-desc">${s.desc}</p>
-        </article>
-      `).join('');
-
-      document.querySelectorAll('.service-card').forEach(card => {
-        card.addEventListener('click', () => openModal(card.dataset.service));
-        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openModal(card.dataset.service); });
-      });
-    }
-
-    // ===== MODAL =====
-    function openModal(serviceId) {
-      const svc = services.find(s => s.id === serviceId);
-      if (!svc) return;
-
-      modalTitle.textContent = svc.title;
-      modalDesc.textContent = svc.desc;
-      modalPricing.innerHTML = svc.pricing.map(p => `
-        <div class="price-item">
-          <span class="price-name">${p.name}</span>
-          <span class="price-value">${p.price}</span>
-        </div>
-      `).join('');
-
-      modalOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      modalOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    function setupModal() {
-      modalClose?.addEventListener('click', closeModal);
-      modalOverlay?.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-      btnCopyCard?.addEventListener('click', copyCard);
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-    }
-
-    async function copyCard() {
-      const number = '9860 3501 4998 9922';
-      try {
-        await navigator.clipboard.writeText(number);
-        btnCopyCard.textContent = '✅ Nusxalandi!';
-        setTimeout(() => btnCopyCard.textContent = '📋 Karta raqamini nusxalash', 2000);
-      } catch {
-        btnCopyCard.textContent = '❌ Xatolik';
-        setTimeout(() => btnCopyCard.textContent = '📋 Karta raqamini nusxalash', 2000);
-      }
-    }
-
-    // ===== HISTORY =====
-    function renderHistory() {
-      // Demo data — replace with real API
-      const orders = [
-        { id: 'ORD-2024-001', service: 'Tizim Optimizatsiyasi (Pro)', date: '2024-11-10', amount: '400 000', status: 'completed' },
-        { id: 'ORD-2024-002', service: 'YouTube Konsultatsiya', date: '2024-11-05', amount: 'Kelishuvasovida', status: 'pending' }
-      ];
-
-      if (orders.length === 0) {
-        historyList.innerHTML = `
-          <div class="history-empty">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <p>Buyurtmalar tarixi bo'sh</p>
-            <p style="font-size:13px; margin-top:8px;">Birinchi xizmatingizni buyurtma qiling</p>
-          </div>
-        `;
-        return;
-      }
-
-      historyList.innerHTML = orders.map(o => `
-        <article class="order-item">
-          <div class="order-icon">${o.service.includes('Tizim') ? '💻' : o.service.includes('YouTube') ? '📊' : '🛠'}</div>
-          <div class="order-info">
-            <div class="order-title">${o.service}</div>
-            <div class="order-meta">
-              <span>${o.id}</span>
-              <span>${o.date}</span>
-            </div>
-          </div>
-          <div>
-            <span class="order-status status-${o.status}">${o.status === 'completed' ? 'Bajarildi' : o.status === 'pending' ? 'Kutilmoqda' : 'Bekor qilingan'}</span>
-            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--gold); margin-top:4px;">${o.amount}</div>
-          </div>
-        </article>
-      `).join('');
-    }
-
-    // ===== PROFILE =====
-    function renderProfile() {
-      if (!userData) {
-        document.getElementById('profileName').textContent = 'Telegram orqali kiring';
-        document.getElementById('profileUsername').textContent = 'Mini App ochilmagan';
-        document.getElementById('profileId').textContent = 'ID: —';
-        document.getElementById('profileAvatar').textContent = '?';
-        return;
-      }
-
-      const name = `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Foydalanuvchi';
-      const username = userData.username ? `@${userData.username}` : 'Yo\'q';
-      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'SG';
-
-      document.getElementById('profileAvatar').textContent = initials;
-      document.getElementById('profileName').textContent = name;
-      document.getElementById('profileUsername').textContent = username;
-      document.getElementById('profileId').textContent = `ID: ${userData.id}`;
-
-      // Demo stats
-      document.getElementById('statOrders').textContent = '2';
-      document.getElementById('statSpent').textContent = '400 000';
-      document.getElementById('statBalance').textContent = '0';
-    }
-
-    // ===== TELEGRAM WEBAPP =====
-    function setupWebApp() {
-      if (!tg) {
-        console.warn('Telegram WebApp API topilmadi. Demo rejimda ishlayapti.');
-        // Demo user for testing outside Telegram
-        userData = { id: 123456789, first_name: 'Demo', last_name: 'User', username: 'demo_user' };
-        renderProfile();
-        return;
-      }
-
-      // Theme handling
-      tg.onEvent('themeChanged', () => {
-        document.documentElement.style.setProperty('--bg', tg.backgroundColor || '#0d0e12');
-      });
-
-      // Viewport handling
-      tg.expand();
-
-      // Main button (optional)
-      tg.MainButton.setParams({ text: 'Buyurtma berish', color: '#7c5cff', text_color: '#0d0e12' });
-      tg.MainButton.onClick(() => { switchTab('shop'); tg.MainButton.hide(); });
-      tg.MainButton.show();
-
-      // Back button
-      tg.BackButton.onClick(() => { if (modalOverlay.classList.contains('active')) closeModal(); else tg.close(); });
-      tg.BackButton.show();
-
-      // Haptic feedback
-      document.querySelectorAll('.service-card, .nav-item, .btn-primary, .btn-secondary').forEach(el => {
-        el.addEventListener('click', () => tg.HapticFeedback?.impactOccurred?.('light'));
-      });
-
-      renderProfile();
-    }
-
-    // ===== HELPERS =====
-    function openSupport() {
-      tg?.openTelegramLink('https://t.me/SamuelShopbot');
-    }
-    function openSettings() {
-      tg?.openSettings?.();
-    }
-    function logout() {
-      tg?.close();
-    }
-
-    // ===== START =====
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  </script>
-</body>
-</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kira Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #0f1015;
+            color: #ffffff;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #ff3344;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #8b8e9b;
+            margin-bottom: 20px;
+        }
+        .categories {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .category-card {
+            background: #1a1b24;
+            border: 1px solid #2a2c3d;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .category-card:active {
+            transform: scale(0.98);
+            border-color: #ff3344;
+        }
+        .category-card h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        .category-card p {
+            font-size: 13px;
+            color: #8b8e9b;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 100;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #161722;
+            width: 100%;
+            max-height: 85vh;
+            border-top-left-radius: 20px;
+            border
