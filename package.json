@@ -1,23 +1,15 @@
 {
-  "name": "samuel-group-portal",
+  "name": "kira-bot",
   "version": "1.0.0",
-  "description": "Samuel Group // Portal - Enterprise Telegram Mini App",
+  "description": "Kira Telegram Bot & Mini App",
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "tsx watch server.ts",
-    "build": "tsc"
+    "start": "node server.js"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "telegraf": "^4.16.3",
-    "dotenv": "^16.4.5"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.12.7",
-    "tsx": "^4.19.0",
-    "typescript": "^5.4.5"
+    "telegraf": "^4.16.3"
   }
 }
