@@ -1,53 +1,37 @@
-import express from 'express';
 import { Telegraf, Markup } from 'telegraf';
-import * as dotenv from 'dotenv';
+import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT || 3000;
-const WEB_APP_URL = process.env.WEB_APP_URL || `http://localhost:${PORT}`;
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || '';
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || process.env.BOT_TOKEN;
+// Siz bergan aniq ma'lumotlar
+const TOKEN = '8460703214:AAEaP8AWvAKTNcBodKIrkAkABfIWY_1LAs0';
+const ADMIN_CHAT_ID = '5709916413';
+const WEB_APP_URL = 'https://kira-bot-jgtj.onrender.com';
 
-if (!TELEGRAM_BOT_TOKEN) {
-    console.error('❌ TELEGRAM_BOT_TOKEN topilmadi! .env faylni tekshir.');
-    process.exit(1);
-}
-
-const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
+const bot = new Telegraf(TOKEN);
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// ─── Express static serving ───
+// Statik fayllarni ulash
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── Health check ───
-app.get('/health', (_, res) => res.json({ status: 'ok', service: 'Samuel Group Portal' }));
-
-// ─── Start Express ───
-const server = app.listen(PORT, () => {
-    console.log(`[Express] 🚀 Mini App server ishga tushdi: ${WEB_APP_URL}`);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ═══════════════════════════════════════════════════════════════
-// TELEGRAF BOT HANDLERS
-// ═══════════════════════════════════════════════════════════════
-
-// /start — WebApp tugmasi bilan
+// Start komandasi va aniq yo'riqnoma
 bot.start(async (ctx) => {
     const userName = ctx.from?.first_name || 'Foydalanuvchi';
-    const userId = ctx.from?.id;
-
     await ctx.reply(
-        `🖤 *SAMUEL GROUP // PORTAL*\n` +
-        `──────────────────────────\n` +
-        `Xush kelibsiz, ${userName}! Men Kira 💋\n\n` +
-        `Professional IT xizmatlar, dasturiy yechimlar va eksklyuziv o'yinlar.\n\n` +
-        `👇 Pastdagi tugma orqali **Mini App** oching — to'liq interfeys, xizmatlar, to'lov va profil:`,
+        `*SAMUEL GROUP // PORTAL*\n\n` +
+        `Salom, ${userName}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n` +
+        `🚀 *Qanday foydalanish kerak?*\n` +
+        `1. Pastdagi klaviaturada chiqadigan *'🚀 Open Market'* tugmasini bosing.\n` +
+        `2. Ochilgan oyna orqali barcha eksklyuziv xizmatlar, dasturlar va YouTube konsultatsiyalari bilan tanishing.\n` +
+        `3. Tanlagan xizmatingiz uchun to'lovni amalga oshirib, chekni shu botga rasm ko'rinishida yuboring!`,
         {
             parse_mode: 'Markdown',
             ...Markup.keyboard([
@@ -57,81 +41,33 @@ bot.start(async (ctx) => {
     );
 });
 
-// /help
-bot.help(async (ctx) => {
-    await ctx.reply(
-        `✨ *YORDAM*\n` +
-        `──────────────────────────\n` +
-        `/start — Mini App ochish\n` +
-        `/help — Bu yordam\n\n` +
-        `📸 Chek rasmini yuboring — avtomatik adminga yuboriladi.`
-    );
-});
-
-// ─── CHEK (RECEIPT) PHOTO HANDLER ───
+// To'lov cheklarini qabul qilish va adminga yuborish
 bot.on('photo', async (ctx) => {
     const user = ctx.from;
     if (!user) return;
-
-    const userId = user.id;
-    const firstName = user.first_name || 'Foydalanuvchi';
-    const username = user.username ? `@${user.username}` : '';
-
-    // 1. Foydalanuvchiga tasdiq xabari
-    const confirmText =
-        `✅ *Chekingiz qabul qilindi!*\n\n` +
-        `👤 Mijoz: ${firstName}\n` +
-        `🆔 ID: \`${userId}\`\n` +
-        `📸 Chek rasmi yetkazib berildi.\n\n` +
-        `Operator tez orada tekshirib, to'lovni tasdiqlaydi. 🙏`;
-
-    await ctx.reply(confirmText, { parse_mode: 'Markdown' });
-
-    // 2. Admin ga forward
+    
+    await ctx.reply('*Chekingiz qabul qilindi!* \nOperator tez orada tekshiradi.', { parse_mode: 'Markdown' });
+    
     if (ADMIN_CHAT_ID) {
-        try {
-            const photoArray = ctx.message.photo;
-            const fileId = photoArray[photoArray.length - 1].file_id;
-
-            const caption =
-                `📥 *YANGI TO'LOV CHEKI*\n` +
-                `──────────────────────────\n` +
-                `👤 Mijoz: ${firstName}\n` +
-                `Username: ${username || 'Yo\'q'}\n` +
-                `🆔 Telegram ID: \`${userId}\`\n` +
-                `📌 Chek avtomatik yuborildi.`;
-
-            await bot.telegram.sendPhoto(ADMIN_CHAT_ID, fileId, {
-                caption,
-                parse_mode: 'Markdown',
-            });
-            console.log(`[Chek] ${firstName} (${userId}) chek → Admin ga forward qilindi`);
-        } catch (err) {
-            console.error('[Chek] Admin ga yuborishda xatolik:', err);
-        }
-    } else {
-        console.log(`[Chek] ${firstName} (${userId}) chek yubordi. ADMIN_CHAT_ID sozlanmagan.`);
+        const photoArray = ctx.message.photo;
+        const fileId = photoArray[photoArray.length - 1].file_id;
+        await bot.telegram.sendPhoto(ADMIN_CHAT_ID, fileId, {
+            caption: `🔴 *YANGI TO'LOV CHEKI*\n\n` +
+                     `👤 Mijoz: [${user.first_name}](tg://user?id=${user.id})\n` +
+                     `🆔 ID: \`${user.id}\``,
+            parse_mode: 'Markdown'
+        });
     }
 });
 
-// ─── Bot launch ───
+// 502 xatosi chiqmasligi uchun '0.0.0.0' bilan ulanish
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Express] 🚀 Mini App server ishga tushdi: http://localhost:${PORT}`);
+});
+
 bot.launch().then(() => {
-    console.log('[Telegraf] 🤖 Kira bot muvaffaqiyatli ishga tushdi!');
-    if (ADMIN_CHAT_ID) {
-        console.log(`[Chek] Admin chat ID: ${ADMIN_CHAT_ID}`);
-    } else {
-        console.log('[Chek] ⚠️ ADMIN_CHAT_ID sozlanmagan — cheklar logga yoziladi');
-    }
+    console.log('Kira bot Mini App rejimida muvaffaqiyatli ishga tushdi!');
 });
 
-// ─── Graceful shutdown ───
-process.once('SIGINT', () => {
-    console.log('[Server] SIGINT received, shutting down...');
-    bot.stop('SIGINT');
-    server.close(() => console.log('[Server] Express server to\'xtadi'));
-});
-process.once('SIGTERM', () => {
-    console.log('[Server] SIGTERM received, shutting down...');
-    bot.stop('SIGTERM');
-    server.close(() => console.log('[Server] Express server to\'xtadi'));
-});
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));

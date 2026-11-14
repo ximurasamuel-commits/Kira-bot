@@ -1,11 +1,11 @@
 {
   "name": "kira-bot",
   "version": "1.0.0",
-  "description": "Kira Telegram Bot & Mini App",
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'No build required'"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
