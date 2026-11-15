@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samuel Group // Portal</title>
+    <title>Samuel Games Studios</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -83,8 +83,11 @@
         .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
         .modal-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
         .service-item { display: flex; justify-content: space-between; align-items: center; background: rgba(24, 26, 38, 0.85); padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.08); }
-        .service-name { font-size: 13px; font-weight: 600; max-width: 65%; }
+        .service-name { font-size: 13px; font-weight: 600; max-width: 55%; }
         .service-price { font-size: 14px; font-weight: 800; color: var(--accent-gold); }
+        .buy-btn { background: var(--accent-red); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .buy-btn:active { transform: scale(0.95); }
+        
         .card-payment { background: rgba(24, 26, 38, 0.85); border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 16px; margin-top: 20px; text-align: center; }
         .card-payment span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; }
         .card-payment strong { font-size: 17px; color: var(--accent-gold); letter-spacing: 1.5px; font-family: monospace; }
@@ -94,7 +97,7 @@
 </head>
 <body>
     <header>
-        <h1>SAMUEL GROUP // PORTAL</h1>
+        <h1>SAMUEL GAMES STUDIOS</h1>
         <div class="subtitle">Eksklyuziv xizmatlar va mahsulotlar katalogi</div>
     </header>
 
@@ -106,11 +109,13 @@
             <div class="modal-title" id="modalTitle"></div>
             <div class="modal-desc" id="modalDesc"></div>
             <div id="modalItems"></div>
-            <div class="card-payment">
-                <span>TO'LOV UCHUN KARTA (HUMO)</span>
-                <strong>9860 3501 4998 0922</strong>
+            <div id="paymentSection">
+                <div class="card-payment">
+                    <span>TO'LOV UCHUN KARTA (HUMO)</span>
+                    <strong>9860 3501 4998 0922</strong>
+                </div>
+                <button class="copy-btn" onclick="copyCard()">📋 Karta raqamini nusxalash</button>
             </div>
-            <button class="copy-btn" onclick="copyCard()">📋 Karta raqamini nusxalash</button>
         </div>
     </div>
 
@@ -127,27 +132,38 @@
                 title: "Samuel Games Studios",
                 desc: "Eksklyuziv 3D horror va indie o'yinlar. Atmosferali, immersiv tajriba.",
                 bg: "games.jpg",
-                items: [{ name: "O'yinlar bazasi va relizlar", price: "TEZ KUNDA 🚀" }]
+                showPayment: false,
+                items: [{ name: "O'yinlar bazasi va relizlar", price: "TEZ KUNDA 🚀", action: false }]
             },
             software: {
                 title: "Dasturiy Ta'minot",
                 desc: "C++, Qt, Electron, Python va custom skriptlar. Desktop/Web ilovalar va botlar.",
                 bg: "software.jpg",
+                showPayment: true,
                 items: [
-                    { name: "Sayt yaratish", price: "$500 - $1,000" },
-                    { name: "Desktop dastur yaratish", price: "$600 - $1,200" },
-                    { name: "Telegram bot yaratish", price: "$1,500+" }
+                    { name: "Sayt yaratish", price: "$500 - $1,000", action: true },
+                    { name: "Desktop dastur yaratish", price: "$600 - $1,200", action: true },
+                    { name: "Telegram bot yaratish", price: "$1,500+", action: true }
                 ]
             },
             youtube: {
                 title: "YouTube Konsultatsiya",
                 desc: "15 yillik tajriba: SEO, kontent strategiyasi, media menejment va audit.",
                 bg: "youtube.jpg",
+                showPayment: true,
                 items: [
-                    { name: "1 SOATLIK STRATEGIK MASLAHAT", price: "$70" },
-                    { name: "TO'LIQ KANAL AUDITI", price: "$200" },
-                    { name: "OYLIK MEDIA-KO'MAK", price: "$600 / oy" }
+                    { name: "1 SOATLIK STRATEGIK MASLAHAT", price: "$70", action: true },
+                    { name: "TO'LIQ KANAL AUDITI", price: "$200", action: true },
+                    { name: "OYLIK MEDIA-KO'MAK", price: "$600 / oy", action: true }
                 ]
+            },
+            purchases: {
+                title: "Mening Xaridlarim",
+                desc: "Siz tanlagan va buyurtma bergan xizmatlar avtomatik ravishda shu yerda saqlanadi.",
+                bg: "main-bg.jpg",
+                showPayment: false,
+                isPurchases: true,
+                items: []
             }
         };
 
@@ -168,6 +184,24 @@
             }
         }
 
+        function getPurchases() {
+            try {
+                return JSON.parse(localStorage.getItem('samuel_purchases')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function addPurchase(name, price) {
+            let purchases = getPurchases();
+            purchases.push({ name, price, date: new Date().toLocaleDateString() });
+            localStorage.setItem('samuel_purchases', JSON.stringify(purchases));
+            alert("Xaridlar bo'limiga qo'shildi! 🚀");
+            if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.notificationOccurred === 'function') {
+                try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+            }
+        }
+
         function openModal(key) {
             const data = servicesData[key];
             if (!data) return;
@@ -176,17 +210,38 @@
             const descEl = document.getElementById('modalDesc');
             const modalBox = document.getElementById('modalContentBox');
             const itemsContainer = document.getElementById('modalItems');
+            const paymentSection = document.getElementById('paymentSection');
 
             if (titleEl) titleEl.innerText = data.title;
             if (descEl) descEl.innerText = data.desc;
             if (modalBox) modalBox.style.backgroundImage = `url('${data.bg}')`;
 
+            if (paymentSection) {
+                paymentSection.style.display = data.showPayment ? 'block' : 'none';
+            }
+
             if (itemsContainer) {
                 itemsContainer.innerHTML = '';
-                data.items.forEach(item => {
+                
+                let currentItems = data.items;
+                if (data.isPurchases) {
+                    currentItems = getPurchases();
+                    if (currentItems.length === 0) {
+                        itemsContainer.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px; font-size:13px;">Hozircha xaridlar mavjud emas. Xizmatlarni tanlab buyurtma bering!</div>';
+                    }
+                }
+
+                currentItems.forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'service-item';
-                    div.innerHTML = `<span class="service-name">${item.name}</span><span class="service-price">${item.price}</span>`;
+                    
+                    if (data.isPurchases) {
+                        div.innerHTML = `<span class="service-name">${item.name} (${item.date || ''})</span><span class="service-price">${item.price}</span>`;
+                    } else if (item.action) {
+                        div.innerHTML = `<span class="service-name">${item.name}</span><span style="display:flex; align-items:center; gap:10px;"><span class="service-price">${item.price}</span><button class="buy-btn" onclick="event.stopPropagation(); addPurchase('${item.name.replace(/'/g, "\\'")}', '${item.price}')">Tanlash</button></span>`;
+                    } else {
+                        div.innerHTML = `<span class="service-name">${item.name}</span><span class="service-price">${item.price}</span>`;
+                    }
                     itemsContainer.appendChild(div);
                 });
             }
