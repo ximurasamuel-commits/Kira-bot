@@ -64,6 +64,26 @@ bot.on('photo', async (ctx) => {
     }
 });
 
+// Kanal postlari muhokama guruhiga tushganda avtomatik xabar va tugma yuborish
+bot.on('message', async (ctx) => {
+    try {
+        if (ctx.message && ctx.message.sender_chat && ctx.message.sender_chat.type === 'channel') {
+            await ctx.reply('🔴 *SAMUEL & KIRA SHOP*\n\nFikr bildirishda qoidalarga amal qiling va chatimizga qo‘shiling!', {
+                parse_mode: 'Markdown',
+                reply_to_message_id: ctx.message.message_id,
+                ...Markup.inlineKeyboard([
+                    [
+                        Markup.button.url('💬 BIZNING CHAT', 'https://t.me/samuel_play'),
+                        Markup.button.url('❗️ QOIDALAR', 'https://t.me/samuel_play')
+                    ]
+                ])
+            });
+        }
+    } catch (e) {
+        console.log("Auto-post error:", e);
+    }
+});
+
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 bot.launch().then(() => console.log('Bot started'));
 process.once('SIGINT', () => bot.stop('SIGINT'));
