@@ -20,26 +20,39 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// /start komandasi: Banner rasm va ostida chiroyli inline tugmalar bilan
 bot.start(async (ctx) => {
     const u = ctx.from?.first_name || 'Foydalanuvchi';
-    await ctx.reply(
-        `*SAMUEL GROUP // PORTAL*\n\n` +
-        `Salom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n` +
-        `🚀 *Qanday foydalanish kerak?*\n` +
-        `1. Pastdagi *'🚀 Open Market'* tugmasini bosing.\n` +
-        `2. Xizmatlar bilan tanishing.\n` +
-        `3. To'lov chekini rasm ko'rinishida yuboring!`,
-        {
-            parse_mode: 'Markdown',
-            ...Markup.keyboard([
-                [Markup.button.webApp('🚀 Open Market', WEB_APP_URL)]
-            ]).resize()
-        }
-    );
+    
+    try {
+        await ctx.replyWithPhoto(
+            { source: path.join(__dirname, 'public', 'main-bg.jpg') },
+            {
+                caption: `*SAMUEL & KIRA SHOP* // PORTAL\n\nSalom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.\n\n🚀 *Eksklyuziv xizmatlar va mahsulotlar katalogi*`,
+                parse_mode: 'Markdown',
+                ...Markup.inlineKeyboard([
+                    [Markup.button.webApp('🚀 Open Market', WEB_APP_URL)],
+                    [Markup.button.url('💬 Bizning Chat', 'https://t.me/samuel_play'), Markup.button.url('🔥 Kanalimiz', 'https://t.me/samuel_play')]
+                ])
+            }
+        );
+    } catch (e) {
+        // Agar rasm topilmasa, matnli xabar va tugma yuboradi (kod buzilmaydi)
+        await ctx.reply(
+            `*SAMUEL & KIRA SHOP* // PORTAL\n\nSalom, ${u}! Men Kira 🔴 — sizning shaxsiy yordamchingiz.`,
+            {
+                parse_mode: 'Markdown',
+                ...Markup.inlineKeyboard([
+                    [Markup.button.webApp('🚀 Open Market', WEB_APP_URL)]
+                ])
+            }
+        );
+    }
 });
 
+// To'lov cheklarini qabul qilish va adminga yuborish
 bot.on('photo', async (ctx) => {
-    const u = ctx.from;
+    const u = ctx.from; 
     if (!u) return;
     await ctx.reply('*Chekingiz qabul qilindi!* \nOperator tez orada tekshiradi.', { parse_mode: 'Markdown' });
     if (ADMIN_CHAT_ID) {
