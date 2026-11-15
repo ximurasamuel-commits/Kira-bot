@@ -85,4 +85,138 @@
         .service-item { display: flex; justify-content: space-between; align-items: center; background: rgba(24, 26, 38, 0.85); padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.08); }
         .service-name { font-size: 13px; font-weight: 600; max-width: 65%; }
         .service-price { font-size: 14px; font-weight: 800; color: var(--accent-gold); }
-        .card-payment { background: rgba(24, 26, 38, 0.85); border: 1px dashed var(--accent-gold); border-radius: 12px; padding:
+        .card-payment { background: rgba(24, 26, 38, 0.85); border: 1px dashed var(--accent-gold); border-radius: 12px; padding: 16px; margin-top: 20px; text-align: center; }
+        .card-payment span { font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; }
+        .card-payment strong { font-size: 17px; color: var(--accent-gold); letter-spacing: 1.5px; font-family: monospace; }
+        .copy-btn { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 14px; margin-top: 12px; cursor: pointer; }
+        .footer-brand { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SAMUEL GROUP // PORTAL</h1>
+        <div class="subtitle">Eksklyuziv xizmatlar va mahsulotlar katalogi</div>
+    </header>
+
+    <div class="categories" id="categoriesContainer"></div>
+
+    <div class="modal" id="serviceModal">
+        <div class="modal-content" id="modalContentBox">
+            <button class="back-btn" onclick="closeModal()">← Ortga</button>
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-desc" id="modalDesc"></div>
+            <div id="modalItems"></div>
+            <div class="card-payment">
+                <span>TO'LOV UCHUN KARTA (HUMO)</span>
+                <strong>9860 3501 4998 0922</strong>
+            </div>
+            <button class="copy-btn" onclick="copyCard()">📋 Karta raqamini nusxalash</button>
+        </div>
+    </div>
+
+    <div class="footer-brand">@SamuelShopbot</div>
+
+    <script>
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg && typeof tg.expand === 'function') {
+            try { tg.expand(); } catch (e) {}
+        }
+
+        const servicesData = {
+            games: {
+                title: "Samuel Games Studios",
+                desc: "Eksklyuziv 3D horror va indie o'yinlar. Atmosferali, immersiv tajriba.",
+                bg: "games.jpg",
+                items: [{ name: "O'yinlar bazasi va relizlar", price: "TEZ KUNDA 🚀" }]
+            },
+            software: {
+                title: "Dasturiy Ta'minot",
+                desc: "C++, Qt, Electron, Python va custom skriptlar. Desktop/Web ilovalar va botlar.",
+                bg: "software.jpg",
+                items: [
+                    { name: "Sayt yaratish", price: "$500 - $1,000" },
+                    { name: "Desktop dastur yaratish", price: "$600 - $1,200" },
+                    { name: "Telegram bot yaratish", price: "$1,500+" }
+                ]
+            },
+            youtube: {
+                title: "YouTube Konsultatsiya",
+                desc: "15 yillik tajriba: SEO, kontent strategiyasi, media menejment va audit.",
+                bg: "youtube.jpg",
+                items: [
+                    { name: "1 SOATLIK STRATEGIK MASLAHAT", price: "$70" },
+                    { name: "TO'LIQ KANAL AUDITI", price: "$200" },
+                    { name: "OYLIK MEDIA-KO'MAK", price: "$600 / oy" }
+                ]
+            }
+        };
+
+        const container = document.getElementById('categoriesContainer');
+        if (container) {
+            for (const [key, val] of Object.entries(servicesData)) {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.style.backgroundImage = `url('${val.bg}')`;
+                card.onclick = () => openModal(key);
+                card.innerHTML = `
+                    <div class="card-content">
+                        <h3>${val.title}</h3>
+                        <p>${val.desc}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function openModal(key) {
+            const data = servicesData[key];
+            if (!data) return;
+
+            const titleEl = document.getElementById('modalTitle');
+            const descEl = document.getElementById('modalDesc');
+            const modalBox = document.getElementById('modalContentBox');
+            const itemsContainer = document.getElementById('modalItems');
+
+            if (titleEl) titleEl.innerText = data.title;
+            if (descEl) descEl.innerText = data.desc;
+            if (modalBox) modalBox.style.backgroundImage = `url('${data.bg}')`;
+
+            if (itemsContainer) {
+                itemsContainer.innerHTML = '';
+                data.items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'service-item';
+                    div.innerHTML = `<span class="service-name">${item.name}</span><span class="service-price">${item.price}</span>`;
+                    itemsContainer.appendChild(div);
+                });
+            }
+
+            const modalEl = document.getElementById('serviceModal');
+            if (modalEl) modalEl.classList.add('active');
+
+            if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === 'function') {
+                try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
+            }
+        }
+
+        function closeModal() {
+            const modalEl = document.getElementById('serviceModal');
+            if (modalEl) modalEl.classList.remove('active');
+            if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.impactOccurred === 'function') {
+                try { tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
+            }
+        }
+
+        function copyCard() {
+            navigator.clipboard.writeText("9860350149980922").then(() => {
+                if (tg && tg.HapticFeedback && typeof tg.HapticFeedback.notificationOccurred === 'function') {
+                    try { tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+                }
+                alert("Karta raqami nusxalandi!");
+            }).catch(err => {
+                alert("Karta raqami nusxalandi!");
+            });
+        }
+    </script>
+</body>
+</html>
